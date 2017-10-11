@@ -64,7 +64,7 @@ void bpnn_train_cuda(BPNN *net, float *eo, float *eh)
   in = net->input_n;
   hid = net->hidden_n;
   out = net->output_n;   
-    double time1, time2, totalTime1, totalTime2;   
+  double time1, time2, totalTime1, totalTime2;   
 #ifdef GPU  
   int m = 0;
   float *input_hidden_cuda;
@@ -103,7 +103,7 @@ void bpnn_train_cuda(BPNN *net, float *eo, float *eh)
 #endif
 totalTime1 = gettime();
 #ifdef CPU
-  printf("0, %d,", net->input); 
+  printf("0, %d,", net->input_n); 
   time1 = gettime();
   //printf("Performing CPU computation\n");
   bpnn_layerforward(net->input_units, net->hidden_units,net->input_weights, in, hid);
@@ -205,10 +205,10 @@ totalTime1 = gettime();
   free(input_weights_prev_one_dim);
   time2 = gettime();
   printf("%f,", time2 - time1);
-  totalTime2 = gettime();
-  printf("%f, \n", totalTime2 - totalTime1);
 #endif   
   
+  totalTime2 = gettime();
+  printf("%f, \n", totalTime2 - totalTime1);
   
   
 

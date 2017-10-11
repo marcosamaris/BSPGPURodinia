@@ -1,3 +1,4 @@
+
 include ../../common/make.config
 include ../../common/init.config
 
@@ -13,7 +14,7 @@ NVCC_FLAGS = -I$(CUDA_DIR)/include
 ifeq ($(dbg),1)
 	NVCC_FLAGS += -g -O0
 else
-	NVCC_FLAGS += -O2 $(FLAGSpecial)
+	NVCC_FLAGS += -O2 $(OTHERFLAGS) $(DEVICE)
 endif
 
 # 'make emu=1' compiles the CUDA kernels for emulation
@@ -42,4 +43,4 @@ imagenet.o: imagenet.c backprop.h
 
 
 clean:
-	rm -f *.o *~ backprop backprop_cuda.linkinfo
+	rm -f *.o *~ backprop backp_nrop_cuda.linkinfo

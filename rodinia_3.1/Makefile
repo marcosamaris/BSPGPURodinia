@@ -1,3 +1,4 @@
+
 include common/make.config
 
 RODINIA_BASE_DIR := $(shell pwd)
