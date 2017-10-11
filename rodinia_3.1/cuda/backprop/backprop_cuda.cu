@@ -64,7 +64,7 @@ void bpnn_train_cuda(BPNN *net, float *eo, float *eh)
   in = net->input_n;
   hid = net->hidden_n;
   out = net->output_n;   
-   
+    double time1, time2, totalTime1, totalTime2;   
 #ifdef GPU  
   int m = 0;
   float *input_hidden_cuda;
@@ -101,18 +101,23 @@ void bpnn_train_cuda(BPNN *net, float *eo, float *eh)
   
   
 #endif
-
+totalTime1 = gettime();
 #ifdef CPU
-
-  printf("Performing CPU computation\n");
+  printf("0, %d,", net->input); 
+  time1 = gettime();
+  //printf("Performing CPU computation\n");
   bpnn_layerforward(net->input_units, net->hidden_units,net->input_weights, in, hid);
-
+  time2 = gettime();
+  printf("%f", time2-time1);
 #endif
 
 #ifdef GPU
- 
-  printf("Performing GPU computation\n");
+
+  printf("1, %d,", net->input_n); 
+
+ // printf("Performing GPU computation\n");
   
+ time1 = gettime();
   //printf("in= %d, hid = %d, numblocks = %d\n", in, hid, num_blocks);
   
   cudaMemcpy(input_cuda, net->input_units, (in + 1) * sizeof(float), cudaMemcpyHostToDevice);
@@ -145,22 +150,30 @@ void bpnn_train_cuda(BPNN *net, float *eo, float *eh)
 	sum += net->input_weights[0][j];
 	net-> hidden_units[j] = float(1.0 / (1.0 + exp(-sum)));
   }
+  time2 = gettime();
+  printf("%f,", time2-time1);
   #endif
+
+ time1 = gettime();
 
   bpnn_layerforward(net->hidden_units, net->output_units, net->hidden_weights, hid, out);
   bpnn_output_error(net->output_delta, net->target, net->output_units, out, &out_err);
   bpnn_hidden_error(net->hidden_delta, hid, net->output_delta, out, net->hidden_weights, net->hidden_units, &hid_err);  
   bpnn_adjust_weights(net->output_delta, out, net->hidden_units, hid, net->hidden_weights, net->hidden_prev_weights);
 
+  time2 = gettime();
+  printf("%f,", time2 - time1);
+
 #ifdef CPU
-
+  time1 = gettime();
   bpnn_adjust_weights(net->hidden_delta, hid, net->input_units, in, net->input_weights, net->input_prev_weights);
-
+  time2 = gettime();
+  printf("%f,", time2 - time1);
 #endif  
 
 
 #ifdef GPU
-
+  time1 = gettime();
   cudaMalloc((void**) &hidden_delta_cuda, (hid + 1) * sizeof(float));
   cudaMalloc((void**) &input_prev_weights_cuda, (in + 1) * (hid + 1) * sizeof(float));
 
@@ -190,7 +203,10 @@ void bpnn_train_cuda(BPNN *net, float *eo, float *eh)
   free(partial_sum);
   free(input_weights_one_dim);
   free(input_weights_prev_one_dim);
-
+  time2 = gettime();
+  printf("%f,", time2 - time1);
+  totalTime2 = gettime();
+  printf("%f, \n", totalTime2 - totalTime1);
 #endif   
   
   

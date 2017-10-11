@@ -18,13 +18,13 @@ backprop_face()
   float out_err, hid_err;
   net = bpnn_create(layer_size, 16, 1); // (16, 1 can not be changed)
   
-  printf("Input layer size : %d\n", layer_size);
+  //printf("Input layer size : %d\n", layer_size);
   load(net);
   //entering the training kernel, only one iteration
-  printf("Starting training kernel\n");
+  //printf("Starting training kernel\n");
   bpnn_train_cuda(net, &out_err, &hid_err);
   bpnn_free(net);
-  printf("Training done\n");
+ //printf("Training done\n");
 }
 
 int setup(argc, argv)
