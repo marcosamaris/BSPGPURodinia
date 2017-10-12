@@ -89,9 +89,16 @@ create_matrix(float *m, int size){
 }
 
 
+
+double gettime() {
+  struct timeval t;
+  gettimeofday(&t,NULL);
+  return t.tv_sec+t.tv_usec*1e-6;
+}
+
 int main(int argc, char *argv[])
 {
-  printf("WG size of kernel 1 = %d, WG size of kernel 2= %d X %d\n", MAXBLOCKSIZE, BLOCK_SIZE_XY, BLOCK_SIZE_XY);
+  //printf("WG size of kernel 1 = %d, WG size of kernel 2= %d X %d\n", MAXBLOCKSIZE, BLOCK_SIZE_XY, BLOCK_SIZE_XY);
     int verbose = 1;
     int i, j;
     char flag;
@@ -132,7 +139,7 @@ int main(int argc, char *argv[])
             case 's': // platform
               i++;
               Size = atoi(argv[i]);
-	      printf("Create matrix internally in parse, size = %d \n", Size);
+	     // printf("Create matrix internally in parse, size = %d \n", Size);
 
 	      a = (float *) malloc(Size * Size * sizeof(float));
 	      create_matrix(a, Size);
@@ -184,8 +191,8 @@ int main(int argc, char *argv[])
         printf("The final solution is: \n");
         PrintAry(finalVec,Size);
     }
-    printf("\nTime total (including memory transfers)\t%f sec\n", time_total * 1e-6);
-    printf("Time for CUDA kernels:\t%f sec\n",totalKernelTime * 1e-6);
+    //printf("%f,\n", time_total * 1e-6);
+    //printf("Time for CUDA kernels:\t%f sec\n",totalKernelTime * 1e-6);
     
     /*printf("%d,%d\n",size,time_total);
     fprintf(stderr,"%d,%d\n",size,time_total);*/
@@ -328,6 +335,7 @@ void ForwardSub()
 	int t;
     float *m_cuda,*a_cuda,*b_cuda;
 	
+    double time1, time2, totalTime1, totalTime2;
 	// allocate memory on GPU
 	cudaMalloc((void **) &m_cuda, Size * Size * sizeof(float));
 	 
@@ -335,11 +343,12 @@ void ForwardSub()
 	
 	cudaMalloc((void **) &b_cuda, Size * sizeof(float));	
 
+    totalTime1 = gettime();
 	// copy memory to GPU
 	cudaMemcpy(m_cuda, m, Size * Size * sizeof(float),cudaMemcpyHostToDevice );
 	cudaMemcpy(a_cuda, a, Size * Size * sizeof(float),cudaMemcpyHostToDevice );
 	cudaMemcpy(b_cuda, b, Size * sizeof(float),cudaMemcpyHostToDevice );
-	
+
 	int block_size,grid_size;
 	
 	block_size = MAXBLOCKSIZE;
@@ -358,26 +367,35 @@ void ForwardSub()
 	dim3 dimBlockXY(blockSize2d,blockSize2d);
 	dim3 dimGridXY(gridSize2d,gridSize2d);
 
-    // begin timing kernels
-    struct timeval time_start;
-    gettimeofday(&time_start, NULL);
 	for (t=0; t<(Size-1); t++) {
-		Fan1<<<dimGrid,dimBlock>>>(m_cuda,a_cuda,Size,t);
+        printf("1, %d, %d,", Size, Size-t);
+
+		time1 = gettime();
+        Fan1<<<dimGrid,dimBlock>>>(m_cuda,a_cuda,Size,t);
 		cudaThreadSynchronize();
-		Fan2<<<dimGridXY,dimBlockXY>>>(m_cuda,a_cuda,b_cuda,Size,Size-t,t);
+		time2 = gettime();
+        printf("%f,", time2 - time1);
+        
+        time1 = gettime();
+        Fan2<<<dimGridXY,dimBlockXY>>>(m_cuda,a_cuda,b_cuda,Size,Size-t,t);
 		cudaThreadSynchronize();
-		checkCUDAError("Fan2");
+		time2 = gettime();
+        printf("%f,\n", time2 - time1);
+        
+        checkCUDAError("Fan2");
 	}
-	// end timing kernels
-	struct timeval time_end;
-    gettimeofday(&time_end, NULL);
-    totalKernelTime = (time_end.tv_sec * 1000000 + time_end.tv_usec) - (time_start.tv_sec * 1000000 + time_start.tv_usec);
 	
+   
+   
+
 	// copy memory back to CPU
 	cudaMemcpy(m, m_cuda, Size * Size * sizeof(float),cudaMemcpyDeviceToHost );
 	cudaMemcpy(a, a_cuda, Size * Size * sizeof(float),cudaMemcpyDeviceToHost );
 	cudaMemcpy(b, b_cuda, Size * sizeof(float),cudaMemcpyDeviceToHost );
-	cudaFree(m_cuda);
+    totalTime2 = gettime();
+    printf("1, %d, , , , %f\n,", Size, totalTime2 - totalTime1);
+    
+    cudaFree(m_cuda);
 	cudaFree(a_cuda);
 	cudaFree(b_cuda);
 }

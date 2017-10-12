@@ -1,16 +1,16 @@
 include ../../common/make.config
 
 #C compiler
-CC = g++
+CC = gcc
 
-SRC = clutils.cpp gaussianElim.cpp utils.cpp
+SRC = gaussian.c
 
-CC_FLAGS = -g -O3
+CC_FLAGS = -std=c99  -g -O3
 
 EXE = gaussian
 
 release:
-	$(CC) $(KERNEL_DIM) $(CC_FLAGS) -lOpenCL  -fopenmp $(SRC) -o $(EXE) -I$(OPENCL_INC) -L$(OPENCL_LIB)
+	$(CC) $(KERNEL_DIM) $(CC_FLAGS) $(SRC) -o $(EXE) 
 	
 clean: 
 	rm -f $(EXE) 
