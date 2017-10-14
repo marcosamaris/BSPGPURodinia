@@ -11,10 +11,10 @@
 #include <stdlib.h>
 #include <math.h>
 #include <string.h>
-
 #include <avilib.h>
 #include <avimod.h>
 #include <cuda.h>
+#include "../../common/common.h"
 
 //======================================================================================================================================================
 //	STRUCTURES, GLOBAL STRUCTURE VARIABLES
@@ -119,11 +119,14 @@ void write_data(	char* filename,
 //===============================================================================================================================================================================================================
 int main(int argc, char *argv []){
 
-  printf("WG size of kernel = %d \n", NUMBER_THREADS);
+  //printf("WG size of kernel = %d \n", NUMBER_THREADS);
 	//======================================================================================================================================================
 	//	VARIABLES
 	//======================================================================================================================================================
 
+    uint64_t time1=0, 
+         time2=0, 
+         totalTime=0;
 	// CUDA kernel execution parameters
 	dim3 threads;
 	dim3 blocks;
@@ -638,7 +641,7 @@ int main(int argc, char *argv []){
 	//	PRINT FRAME PROGRESS START
 	//====================================================================================================
 
-	printf("frame progress: ");
+	//printf("frame progress: ");
 	fflush(NULL);
 
 	//====================================================================================================
@@ -657,24 +660,27 @@ int main(int argc, char *argv []){
 		// copy frame to GPU memory
 		cudaMemcpy(common_change.d_frame, frame, common.frame_mem, cudaMemcpyHostToDevice);
 		cudaMemcpyToSymbol(d_common_change, &common_change, sizeof(params_common_change));
-
+        time1 = getTime();
 		// launch GPU kernel
 		kernel<<<blocks, threads>>>();
+        time2 = getTime();
+        printf("1, %d, %d, %d,\n",frames_processed, common_change.frame_no, (uint64_t)(time2 - time1));
+        totalTime +=  (uint64_t)(time2 - time1);
 
 		// free frame after each loop iteration, since AVI library allocates memory for every frame fetched
 		free(frame);
 
 		// print frame progress
-		printf("%d ", common_change.frame_no);
 		fflush(NULL);
 
 	}
 
+    printf("1, %d, , , %d\n", frames_processed, totalTime);
 	//====================================================================================================
 	//	PRINT FRAME PROGRESS END
 	//====================================================================================================
 
-	printf("\n");
+	//printf("\n");
 	fflush(NULL);
 
 	//====================================================================================================

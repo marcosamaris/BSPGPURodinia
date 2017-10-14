@@ -5,7 +5,7 @@ CC = gcc
 
 SRC = gaussian.c
 
-CC_FLAGS = -std=c99  -g -O3
+CC_FLAGS = -std=gnu99  -g -O3 -w
 
 EXE = gaussian
 

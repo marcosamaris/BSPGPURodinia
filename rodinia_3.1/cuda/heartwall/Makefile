@@ -1,3 +1,4 @@
+include ../../common/init.config
 
 ifdef OUTPUT
 override OUTPUT = -DOUTPUT
@@ -9,7 +10,7 @@ heartwall: main.o ./AVI/avilib.o ./AVI/avimod.o
 
 # compile main function file into object (binary)
 main.o: main.cu kernel.cu define.c
-	nvcc $(OUTPUT) $(KERNEL_DIM) main.cu -I./AVI -c -O3
+	nvcc $(OUTPUT) $(KERNEL_DIM) ${OTHERFLAGS} main.cu -I./AVI -c -O3
 
 ./AVI/avilib.o ./AVI/avimod.o:
 	cd AVI; make;

@@ -6,8 +6,7 @@
 #include <string.h>
 #include <math.h>
 #include <cuda.h>
-#include <sys/time.h>
-
+#include "../../common/common.h"
 // includes, kernels
 #include "backprop_cuda_kernel.cu"
 #include "backprop.h"
@@ -36,12 +35,6 @@ float **alloc_2d_dbl(int m, int n);
 extern "C"
 float squash(float x);
 
-double gettime() {
-  struct timeval t;
-  gettimeofday(&t,NULL);
-  return t.tv_sec+t.tv_usec*1e-6;
-}
-
 unsigned int num_threads = 0;
 unsigned int num_blocks = 0;
 
@@ -64,7 +57,15 @@ void bpnn_train_cuda(BPNN *net, float *eo, float *eh)
   in = net->input_n;
   hid = net->hidden_n;
   out = net->output_n;   
-  double time1, time2, totalTime1, totalTime2;   
+  uint64_t time1=0, 
+           time2=0, 
+           time3=0,
+           time4=0,
+           time5=0,
+           time6=0,
+           totalTime1=0, 
+           totalTime2=0;   
+
 #ifdef GPU  
   int m = 0;
   float *input_hidden_cuda;
@@ -101,14 +102,14 @@ void bpnn_train_cuda(BPNN *net, float *eo, float *eh)
   
   
 #endif
-totalTime1 = gettime();
+totalTime1 = getTime();
 #ifdef CPU
   printf("0, %d,", net->input_n); 
-  time1 = gettime();
+  time1 = getTime();
   //printf("Performing CPU computation\n");
   bpnn_layerforward(net->input_units, net->hidden_units,net->input_weights, in, hid);
-  time2 = gettime();
-  printf("%f", time2-time1);
+  time2 = getTime();
+  printf("%d", (uint64_t)(time2-time1));
 #endif
 
 #ifdef GPU
@@ -117,7 +118,7 @@ totalTime1 = gettime();
 
  // printf("Performing GPU computation\n");
   
- time1 = gettime();
+ time1 = getTime();
   //printf("in= %d, hid = %d, numblocks = %d\n", in, hid, num_blocks);
   
   cudaMemcpy(input_cuda, net->input_units, (in + 1) * sizeof(float), cudaMemcpyHostToDevice);
@@ -150,30 +151,30 @@ totalTime1 = gettime();
 	sum += net->input_weights[0][j];
 	net-> hidden_units[j] = float(1.0 / (1.0 + exp(-sum)));
   }
-  time2 = gettime();
-  printf("%f,", time2-time1);
+  time2 = getTime();
+  printf("%d,", (uint64_t)time2-time1);
   #endif
 
- time1 = gettime();
+ time3 = getTime();
 
   bpnn_layerforward(net->hidden_units, net->output_units, net->hidden_weights, hid, out);
   bpnn_output_error(net->output_delta, net->target, net->output_units, out, &out_err);
   bpnn_hidden_error(net->hidden_delta, hid, net->output_delta, out, net->hidden_weights, net->hidden_units, &hid_err);  
   bpnn_adjust_weights(net->output_delta, out, net->hidden_units, hid, net->hidden_weights, net->hidden_prev_weights);
 
-  time2 = gettime();
-  printf("%f,", time2 - time1);
+  time4 = getTime();
+  printf("%d,", (uint64_t)(time4 - time3));
 
 #ifdef CPU
-  time1 = gettime();
+  time5 = getTime();
   bpnn_adjust_weights(net->hidden_delta, hid, net->input_units, in, net->input_weights, net->input_prev_weights);
-  time2 = gettime();
-  printf("%f,", time2 - time1);
+  time6 = getTime();
+  printf("%d,", (uint64_t)(time6 - time5));
 #endif  
 
 
 #ifdef GPU
-  time1 = gettime();
+  time5 = getTime();
   cudaMalloc((void**) &hidden_delta_cuda, (hid + 1) * sizeof(float));
   cudaMalloc((void**) &input_prev_weights_cuda, (in + 1) * (hid + 1) * sizeof(float));
 
@@ -203,12 +204,12 @@ totalTime1 = gettime();
   free(partial_sum);
   free(input_weights_one_dim);
   free(input_weights_prev_one_dim);
-  time2 = gettime();
-  printf("%f,", time2 - time1);
+  time6 = getTime();
+  printf("%d,", (uint64_t)(time6 - time5));
 #endif   
   
-  totalTime2 = gettime();
-  printf("%f, \n", totalTime2 - totalTime1);
+  totalTime2 = getTime();
+    printf("%d, \n", (uint64_t)(totalTime2 - totalTime1));
   
   
 

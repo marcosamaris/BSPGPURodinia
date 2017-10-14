@@ -14,10 +14,9 @@
  */
 #include <stdio.h>
 #include <stdlib.h>
-#include "cuda.h"
+#include <sys/time.h>
 #include <string.h>
 #include <math.h>
-#include "../../common/common.h"
 
 #ifdef RD_WG_SIZE_0_0
         #define MAXBLOCKSIZE RD_WG_SIZE_0_0
@@ -50,8 +49,11 @@ void InitProblemOnce(char *filename);
 void InitPerRun();
 void ForwardSub();
 void BackSub();
-__global__ void Fan1(float *m, float *a, int Size, int t);
-__global__ void Fan2(float *m, float *a, float *b,int Size, int j1, int t);
+
+void Fan1_CPU(float *ary, int t);
+void Fan2_CPU(float *ary, int size, int t);
+void Fan3_CPU(float *ary, int t);
+
 void InitMat(float *ary, int nrow, int ncol);
 void InitAry(float *ary, int ary_size);
 void PrintMat(float *ary, int nrow, int ncolumn);
@@ -91,7 +93,7 @@ create_matrix(float *m, int size){
 
 int main(int argc, char *argv[])
 {
-  //printf("WG size of kernel 1 = %d, WG size of kernel 2= %d X %d\n", MAXBLOCKSIZE, BLOCK_SIZE_XY, BLOCK_SIZE_XY);
+  printf("WG size of kernel 1 = %d, WG size of kernel 2= %d X %d\n", MAXBLOCKSIZE, BLOCK_SIZE_XY, BLOCK_SIZE_XY);
     int verbose = 1;
     int i, j;
     char flag;
@@ -132,7 +134,7 @@ int main(int argc, char *argv[])
             case 's': // platform
               i++;
               Size = atoi(argv[i]);
-	     // printf("Create matrix internally in parse, size = %d \n", Size);
+	      printf("Create matrix internally in parse, size = %d \n", Size);
 
 	      a = (float *) malloc(Size * Size * sizeof(float));
 	      create_matrix(a, Size);
@@ -158,11 +160,17 @@ int main(int argc, char *argv[])
     //InitProblemOnce(filename);
     InitPerRun();
     //begin timing
+    struct timeval time_start;
+    gettimeofday(&time_start, NULL);	
     
     // run kernels
     ForwardSub();
     
     //end timing
+    struct timeval time_end;
+    gettimeofday(&time_end, NULL);
+    unsigned int time_total = (time_end.tv_sec * 1000000 + time_end.tv_usec) - (time_start.tv_sec * 1000000 + time_start.tv_usec);
+    
     if (verbose) {
         printf("Matrix m is: \n");
         PrintMat(m, Size, Size);
@@ -178,8 +186,8 @@ int main(int argc, char *argv[])
         printf("The final solution is: \n");
         PrintAry(finalVec,Size);
     }
-    //printf("%f,\n", time_total * 1e-6);
-    //printf("Time for CUDA kernels:\t%f sec\n",totalKernelTime * 1e-6);
+    printf("\nTime total (including memory transfers)\t%f sec\n", time_total * 1e-6);
+    printf("Time for CUDA kernels:\t%f sec\n",totalKernelTime * 1e-6);
     
     /*printf("%d,%d\n",size,time_total);
     fprintf(stderr,"%d,%d\n",size,time_total);*/
@@ -312,6 +320,52 @@ __global__ void Fan2(float *m_cuda, float *a_cuda, float *b_cuda,int Size, int j
 	}
 }
 
+
+
+/*-------------------------------------------------------
+** Fan1() -- Calculate multiplier matrix
+** Pay attention to the index.  Index i give the range
+** which starts from 0 to range-1.  The real values of
+** the index should be adjust and related with the value
+** of t which is defined on the ForwardSub().
+**-------------------------------------------------------
+*/
+void Fan1_CPU(int dummy, int i, int t)
+//int dummy, i;
+{   
+  /* Use these printf() to display the nodes and index */
+  m[i+t+1][t] = a[i+t+1][t] / a[t][t];
+  printf("i=%d, a[%d][%d]=%.2f, a[%d][%d]=%.2f, m[%d][%d]=%.2f\n",
+     (i+t+1),t,t,a[t][t],(i+t+1),t,a[i+t+1][t],(i+t+1),t,
+     m[i+t+1][t]);
+}
+
+/*-------------------------------------------------------
+** Fan2() -- Modify the matrix A into LUD
+**-------------------------------------------------------
+*/ 
+void Fan2_CPU(int dummy, int  i, int j, int t)
+//int dummy, i, j;
+{
+  a[i+1+t][j+t] -= m[i+1+t][t] * a[t][j+t];
+  (&a);
+}
+
+/*-------------------------------------------------------
+** Fan3() -- Modify the array b
+**-------------------------------------------------------
+*/
+void Fan3_CPU(int dummy,int i, int t)
+//int dummy, i;
+{
+  b[i+1+t] -=  m[i+1+t][t] * b[t];
+}
+
+/*------------------------------------------------------
+** InitMat() -- Initialize the matrix by reading data
+** from the data file
+**------------------------------------------------------
+*/
 /*------------------------------------------------------
  ** ForwardSub() -- Forward substitution of Gaussian
  ** elimination.
@@ -322,7 +376,6 @@ void ForwardSub()
 	int t;
     float *m_cuda,*a_cuda,*b_cuda;
 	
-    uint64_t time1=0, time2=0, time3=0, time4=0,totalTime1=0, totalTime2=0;
 	// allocate memory on GPU
 	cudaMalloc((void **) &m_cuda, Size * Size * sizeof(float));
 	 
@@ -330,12 +383,11 @@ void ForwardSub()
 	
 	cudaMalloc((void **) &b_cuda, Size * sizeof(float));	
 
-    totalTime1 = getTime();
 	// copy memory to GPU
 	cudaMemcpy(m_cuda, m, Size * Size * sizeof(float),cudaMemcpyHostToDevice );
 	cudaMemcpy(a_cuda, a, Size * Size * sizeof(float),cudaMemcpyHostToDevice );
 	cudaMemcpy(b_cuda, b, Size * sizeof(float),cudaMemcpyHostToDevice );
-
+	
 	int block_size,grid_size;
 	
 	block_size = MAXBLOCKSIZE;
@@ -354,35 +406,26 @@ void ForwardSub()
 	dim3 dimBlockXY(blockSize2d,blockSize2d);
 	dim3 dimGridXY(gridSize2d,gridSize2d);
 
+    // begin timing kernels
+    struct timeval time_start;
+    gettimeofday(&time_start, NULL);
 	for (t=0; t<(Size-1); t++) {
-        printf("1, %d, %d,", Size, Size-t);
-
-		time1 = getTime();
-        Fan1<<<dimGrid,dimBlock>>>(m_cuda,a_cuda,Size,t);
+		Fan1<<<dimGrid,dimBlock>>>(m_cuda,a_cuda,Size,t);
 		cudaThreadSynchronize();
-		time2 = getTime();
-        printf("%d,", (uint64_t)(time2 - time1));
-        
-        time3 = getTime();
-        Fan2<<<dimGridXY,dimBlockXY>>>(m_cuda,a_cuda,b_cuda,Size,Size-t,t);
+		Fan2<<<dimGridXY,dimBlockXY>>>(m_cuda,a_cuda,b_cuda,Size,Size-t,t);
 		cudaThreadSynchronize();
-		time4 = getTime();
-        printf("%d,\n", (uint64_t)(time4 - time3));
-        
-        checkCUDAError("Fan2");
+		checkCUDAError("Fan2");
 	}
+	// end timing kernels
+	struct timeval time_end;
+    gettimeofday(&time_end, NULL);
+    totalKernelTime = (time_end.tv_sec * 1000000 + time_end.tv_usec) - (time_start.tv_sec * 1000000 + time_start.tv_usec);
 	
-   
-   
-
 	// copy memory back to CPU
 	cudaMemcpy(m, m_cuda, Size * Size * sizeof(float),cudaMemcpyDeviceToHost );
 	cudaMemcpy(a, a_cuda, Size * Size * sizeof(float),cudaMemcpyDeviceToHost );
 	cudaMemcpy(b, b_cuda, Size * sizeof(float),cudaMemcpyDeviceToHost );
-    totalTime2 = getTime();
-    printf("1, %d, , , , %d\n,", Size, (uintmax_t)(totalTime2 - totalTime1));
-    
-    cudaFree(m_cuda);
+	cudaFree(m_cuda);
 	cudaFree(a_cuda);
 	cudaFree(b_cuda);
 }

@@ -1,6 +1,6 @@
 # C compiler
 CC = g++
-ICC = icc
+ICC = gcc
 CC_FLAGS = -g -fopenmp -O2
 
 all: bfs bfs_offload

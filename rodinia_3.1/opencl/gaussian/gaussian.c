@@ -11,8 +11,8 @@
 ** Modified by Chong-wei Xu, /04/20/95
 **-----------------------------------------------------------
 */
-//#include <us.h>
 #include <stdio.h>
+#include "../../common/common.h"
 
 int Size, t;
 float **a, *b;
@@ -20,7 +20,8 @@ float **a, *b;
   float **m;
 //END__DECL;
 FILE *fp;
-char sizeFile[5];
+
+int sizeFile;
 void InitProblemOnce();
 void InitPerRun();
 void ForwardSub();
@@ -48,8 +49,8 @@ main (int argc, char *argv[])
   //PrintMat( m, Size, Size);
  // printf("The result of matrix a is: \n");
   //PrintMat(a, Size, Size);
-  printf("The result of array b is: \n");
-  PrintAry(b, Size);
+  //printf("The result of array b is: \n");
+  //PrintAry(b, Size);
 }
 
 /*------------------------------------------------------
@@ -62,14 +63,15 @@ main (int argc, char *argv[])
 */
 void InitProblemOnce()
 {
-  char filename[30];
+  char filename[50];
+  sprintf(filename, "../../data/gaussian/matrix%d.txt", sizeFile);
   int i;
   
   //printf("Enter the data file name: ");
   //scanf("%s", filename);
   //printf("The file name is: %s\n", filename);
  
-  fp = fopen(strcat("../../data/gaussian/matrix", sizeFile, ".txt") , "r");
+  fp = fopen(filename , "r");
  
   fscanf(fp, "%d", &Size);
   //a = (float **) UsAllocScatterMatrix(Size, Size, sizeof(float));
@@ -88,8 +90,8 @@ void InitProblemOnce()
   b = (float *) malloc(Size * sizeof(float));
   
   InitAry(b, Size);
-  printf("The input array b is:\n");
-  PrintAry(b, Size);
+  //printf("The input array b is:\n");
+  //PrintAry(b, Size);
  
    //m = (float **) UsAllocScatterMatrix(Size, Size, sizeof(float));
   
@@ -124,18 +126,34 @@ void InitPerRun()
 */
 void ForwardSub()
 {
+ uint64_t  time1=0;
+ uint64_t  time2 =0;
+ uint64_t  time3 =0;
+ uint64_t  time4=0;
+ uint64_t  totalTime=0;
+ 
   for (t=0; t<(Size-1); t++) {
-    //(&t);
-    Fan1( Size-1-t-1);  
+     printf("1, %d, %d,", Size, Size-t);
 
-      /* t=0 to (Size-2), the range is
-                             ** Size-2-t+1 = Size-1-t
-                             */   
-   Fan2( Size-1-t-1, Size-t-1);
-    Fan3( Size-1-t-1);
+     time1 += getTime();
+     Fan1( Size-1-t-1);  
+     time2 += getTime();
+     printf("%d,", (uint64_t)(time2 - time1));
+        /* t=0 to (Size-2), the range is
+                               ** Size-2-t+1 = Size-1-t
+                               */   
+     totalTime += (uint64_t)(time2 - time1);
+     
+     time3 = getTime();
+     Fan2( Size-1-t-1, Size-t-1);
+     Fan3( Size-1-t-1);
+     time4 = getTime();
+     
+     printf("%d, \n", (uint64_t)(time4 - time3));
+     totalTime += (uint64_t)(time4 - time3);
   }
+  printf("1, %d, , , , %d\n", Size, (uint64_t)totalTime);
 }
-
 /*-------------------------------------------------------
 ** Fan1() -- Calculate multiplier matrix
 ** Pay attention to the index.  Index i give the range

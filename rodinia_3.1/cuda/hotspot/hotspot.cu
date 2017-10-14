@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <time.h>
 #include <assert.h>
+#include "../../common/common.h"
 
 #ifdef RD_WG_SIZE_0_0                                                            
         #define BLOCK_SIZE RD_WG_SIZE_0_0                                        
@@ -221,6 +222,7 @@ __global__ void calculate_temp(int iteration,  //number of iteration
 int compute_tran_temp(float *MatrixPower,float *MatrixTemp[2], int col, int row, \
 		int total_iterations, int num_iterations, int blockCols, int blockRows, int borderCols, int borderRows) 
 {
+    uint64_t time1=0, time2=0, totalTime=0;
         dim3 dimBlock(BLOCK_SIZE, BLOCK_SIZE);
         dim3 dimGrid(blockCols, blockRows);  
 	
@@ -244,9 +246,15 @@ int compute_tran_temp(float *MatrixPower,float *MatrixTemp[2], int col, int row,
             int temp = src;
             src = dst;
             dst = temp;
+            printf("1, %d, %d, %d, %d, %d, %d,  %d,", total_iterations, t, num_iterations, col, row, borderCols, borderRows); 
+            time1 = getTime();
             calculate_temp<<<dimGrid, dimBlock>>>(MIN(num_iterations, total_iterations-t), MatrixPower,MatrixTemp[src],MatrixTemp[dst],\
 		col,row,borderCols, borderRows, Cap,Rx,Ry,Rz,step,time_elapsed);
-	}
+	        time2 = getTime();
+            printf("%d,\n", (uint64_t)(time2 - time1));
+            totalTime +=  (uint64_t)(time2 - time1);
+    }
+    printf("1, , , , , , , , %d,\n",  (uint64_t)(totalTime)); 
         return dst;
 }
 
