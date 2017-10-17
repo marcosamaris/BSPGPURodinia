@@ -242,19 +242,19 @@ int compute_tran_temp(float *MatrixPower,float *MatrixTemp[2], int col, int row,
 
         int src = 1, dst = 0;
 	
-	for (t = 0; t < total_iterations; t+=num_iterations) {
+	for (t = 0; t < total_iterations; t++) {
             int temp = src;
             src = dst;
             dst = temp;
-            printf("1, %d, %d, %d, %d, %d, %d,  %d,", total_iterations, t, num_iterations, col, row, borderCols, borderRows); 
+            // pyramid_height, grid_cols, grid_rows, borderCols, borderRows, blockCols, blockRows, smallBlockCol, smallBlockRow
             time1 = getTime();
             calculate_temp<<<dimGrid, dimBlock>>>(MIN(num_iterations, total_iterations-t), MatrixPower,MatrixTemp[src],MatrixTemp[dst],\
 		col,row,borderCols, borderRows, Cap,Rx,Ry,Rz,step,time_elapsed);
 	        time2 = getTime();
-            printf("%d,\n", (uint64_t)(time2 - time1));
+            printf("1, %d, %d, %d, %d, %d, \n", total_iterations, t, num_iterations, col, row, (uint64_t)(time2 - time1));
             totalTime +=  (uint64_t)(time2 - time1);
     }
-    printf("1, , , , , , , , %d,\n",  (uint64_t)(totalTime)); 
+    printf("1, , , , , , %d\n",  (uint64_t)(totalTime)); 
         return dst;
 }
 
@@ -272,7 +272,7 @@ void usage(int argc, char **argv)
 
 int main(int argc, char** argv)
 {
-  printf("WG size of kernel = %d X %d\n", BLOCK_SIZE, BLOCK_SIZE);
+  //printf("WG size of kernel = %d X %d\n", BLOCK_SIZE, BLOCK_SIZE);
 
     run(argc,argv);
 
@@ -319,7 +319,7 @@ void run(int argc, char** argv)
     if( !FilesavingPower || !FilesavingTemp || !MatrixOut)
         fatal("unable to allocate memory");
 
-    printf("pyramidHeight: %d\ngridSize: [%d, %d]\nborder:[%d, %d]\nblockGrid:[%d, %d]\ntargetBlock:[%d, %d]\n",\
+    //printf("pyramidHeight: %d\ngridSize: [%d, %d]\nborder:[%d, %d]\nblockGrid:[%d, %d]\ntargetBlock:[%d, %d]\n",\
 	pyramid_height, grid_cols, grid_rows, borderCols, borderRows, blockCols, blockRows, smallBlockCol, smallBlockRow);
 	
     readinput(FilesavingTemp, grid_rows, grid_cols, tfile);
@@ -332,10 +332,10 @@ void run(int argc, char** argv)
 
     cudaMalloc((void**)&MatrixPower, sizeof(float)*size);
     cudaMemcpy(MatrixPower, FilesavingPower, sizeof(float)*size, cudaMemcpyHostToDevice);
-    printf("Start computing the transient temperature\n");
+    //printf("Start computing the transient temperature\n");
     int ret = compute_tran_temp(MatrixPower,MatrixTemp,grid_cols,grid_rows, \
 	 total_iterations,pyramid_height, blockCols, blockRows, borderCols, borderRows);
-	printf("Ending simulation\n");
+//	printf("Ending simulation\n");
     cudaMemcpy(MatrixOut, MatrixTemp[ret], sizeof(float)*size, cudaMemcpyDeviceToHost);
 
     writeoutput(MatrixOut,grid_rows, grid_cols, ofile);

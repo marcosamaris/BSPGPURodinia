@@ -7,7 +7,6 @@
 #include <stdlib.h>
 #include <math.h>
 #include <string.h>
-#include <time.h>
 
 #include <avilib.h>
 #include <avimod.h>
@@ -15,7 +14,7 @@
 
 #include "define.c"
 #include "kernel.c"
-
+#include "../../common/common.h"
 
 //===============================================================================================================================================================================================================200
 //	WRITE DATA FUNCTION
@@ -113,6 +112,9 @@ int main(int argc, char *argv []){
 	//======================================================================================================================================================
 
  	
+    uint64_t time1=0, 
+         time2=0, 
+         totalTime=0;
 	
 	if(argc!=4){
 		printf("ERROR: usage: heartwall <inputfile> <num of frames> <num of threads>\n");
@@ -153,7 +155,7 @@ int main(int argc, char *argv []){
 	   return 0;
 	}
 	
-	printf("num of threads: %d\n", omp_num_threads);
+	//printf("num of threads: %d\n", omp_num_threads);
 	
 	//======================================================================================================================================================
 	//	INPUTS
@@ -519,7 +521,7 @@ int main(int argc, char *argv []){
 	//	PRINT FRAME PROGRESS START
 	//======================================================================================================================================================
 
-	printf("frame progress: ");
+	//printf("frame progress: ");
 	fflush(NULL);
 
 	//======================================================================================================================================================
@@ -545,12 +547,18 @@ int main(int argc, char *argv []){
 
 		omp_set_num_threads(omp_num_threads);
 		
-
+                time1 = getTime();
 		#pragma omp parallel for
 		for(i=0; i<public.allPoints; i++){
-			kernel(	public,
+
+		    kernel(	public,
 						private[i]);
 		}
+                    time2 = getTime();
+                    printf("1, %d, %d, %d,\n",frames_processed, public.frame_no, (uint64_t)(time2 - time1));
+                    //printf("%d,", (uint64_t)(time2 - time1)); 
+                    totalTime +=  (uint64_t)(time2 - time1);
+
 
 	//====================================================================================================
 	//	FREE MEMORY FOR FRAME
@@ -563,16 +571,17 @@ int main(int argc, char *argv []){
 	//	PRINT FRAME PROGRESS
 	//====================================================================================================
 
-		printf("%d ", public.frame_no);
+	//	printf("%d ", public.frame_no);
 		fflush(NULL);
 
 	}
+    printf("1, %d, , %d\n", frames_processed, (uint64_t)(totalTime));
 
 	//======================================================================================================================================================
 	//	PRINT FRAME PROGRESS END
 	//======================================================================================================================================================
 
-	printf("\n");
+	//printf("\n");
 	fflush(NULL);
 
 	//======================================================================================================================================================

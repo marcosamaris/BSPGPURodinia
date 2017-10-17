@@ -1,9 +1,3 @@
-long long get_time() {
-	struct timeval tv;
-	gettimeofday(&tv, NULL);
-	return (tv.tv_sec * 1000000) + tv.tv_usec;
-}
-
 __global__ void hotspotOpt1(float *p, float* tIn, float *tOut, float sdc,
         int nx, int ny, int nz,
         float ce, float cw, 
@@ -60,6 +54,9 @@ void hotspot_opt1(float *p, float *tIn, float *tOut,
         float Rx, float Ry, float Rz, 
         float dt, int numiter) 
 {
+
+    uint64_t time1=0, time2=0, totalTime=0;
+    
     float ce, cw, cn, cs, ct, cb, cc;
     float stepDivCap = dt / Cap;
     ce = cw =stepDivCap/ Rx;
@@ -81,18 +78,21 @@ void hotspot_opt1(float *p, float *tIn, float *tOut,
     dim3 block_dim(64, 4, 1);
     dim3 grid_dim(nx / 64, ny / 4, 1);
 
-    long long start = get_time();
     for (int i = 0; i < numiter; ++i) {
+        time1 = getTime();
         hotspotOpt1<<<grid_dim, block_dim>>>
             (p_d, tIn_d, tOut_d, stepDivCap, nx, ny, nz, ce, cw, cn, cs, ct, cb, cc);
+        time2 = getTime();
+        printf("1, %d, %d, %d, %d, %d, %d, \n", numiter, i, nx, ny, nz, (uint64_t)(time2 - time1));
+        totalTime +=  (uint64_t)(time2 - time1);
+        
         float *t = tIn_d;
         tIn_d = tOut_d;
         tOut_d = t;
     }
+    printf("1, , , , , , %d\n",  (uint64_t)(totalTime));
+
     cudaDeviceSynchronize();
-    long long stop = get_time();
-    float time = (float)((stop - start)/(1000.0 * 1000.0));
-    printf("Time: %.3f (s)\n",time);
     cudaMemcpy(tOut, tOut_d, s, cudaMemcpyDeviceToHost);
     cudaFree(p_d);
     cudaFree(tIn_d);

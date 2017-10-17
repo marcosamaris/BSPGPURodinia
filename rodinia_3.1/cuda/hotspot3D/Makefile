@@ -1,4 +1,4 @@
-include ~/rodinia_3.0/common/make.config
+include ../../common/make.config
 
 CC := $(CUDA_DIR)/bin/nvcc
 
@@ -6,7 +6,7 @@ INCLUDE := $(CUDA_DIR)/include
 
 SRC = 3D.cu
 
-EXE = 3D 
+EXE = hotspot3D 
 
 OUTPUT = *.out
 

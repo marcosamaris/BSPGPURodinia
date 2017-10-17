@@ -1,6 +1,6 @@
 # C compiler
 CC = g++
-ICC = icc
+ICC = gcc
 CC_FLAGS = -g -fopenmp -O2
 OFFLOAD_CC_FLAGS = -offload-option,mic,compiler,"-no-opt-prefetch"
 

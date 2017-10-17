@@ -1,9 +1,8 @@
 #include <stdio.h>
-#include <time.h>
 #include <assert.h>
 #include <stdlib.h> 
 #include <math.h> 
-#include <sys/time.h>
+#include "../../common/common.h"
 
 #define BLOCK_SIZE 16
 #define STR_SIZE 256
@@ -196,7 +195,7 @@ int main(int argc, char** argv)
     computeTempCPU(powerIn, tempCopy, answer, numCols, numRows, layers, Cap, Rx, Ry, Rz, dt,iterations);
 
     float acc = accuracy(tempOut,answer,numRows*numCols*layers);
-    printf("Accuracy: %e\n",acc);
+    //printf("Accuracy: %e\n",acc);
     writeoutput(tempOut,numRows, numCols, layers, ofile);
     free(tempIn);
     free(tempOut); free(powerIn);

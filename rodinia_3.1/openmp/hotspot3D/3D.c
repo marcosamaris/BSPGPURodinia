@@ -1,10 +1,9 @@
 #include <stdio.h>
-#include <time.h>
 #include <assert.h>
 #include <stdlib.h> 
 #include <math.h> 
-#include <sys/time.h>
 #include <string.h>
+#include "../../common/common.h"
 
 #define STR_SIZE (256)
 #define MAX_PD	(3.0e6)
@@ -92,7 +91,12 @@ void computeTempCPU(float *pIn, float* tIn, float *tOut,
     int c,w,e,n,s,b,t;
     int x,y,z;
     int i = 0;
+    
+    uint64_t time1=0, time2=0, totalTime=0;
+    
     do{
+
+        time1 = getTime();
         for(z = 0; z < nz; z++)
             for(y = 0; y < ny; y++)
                 for(x = 0; x < nx; x++)
@@ -109,6 +113,11 @@ void computeTempCPU(float *pIn, float* tIn, float *tOut,
 
                     tOut[c] = tIn[c]*cc + tIn[n]*cn + tIn[s]*cs + tIn[e]*ce + tIn[w]*cw + tIn[t]*ct + tIn[b]*cb + (dt/Cap) * pIn[c] + ct*amb_temp;
                 }
+        time2 = getTime();        
+        printf("1, %d, %d, %d, %d, %d,%d, \n", numiter, i, nx, ny, nz, (uint64_t)(time2 - time1));
+        totalTime +=  (uint64_t)(time2 - time1);
+        
+        
         float *temp = tIn;
         tIn = tOut;
         tOut = temp; 
@@ -116,6 +125,7 @@ void computeTempCPU(float *pIn, float* tIn, float *tOut,
     }
     while(i < numiter);
 
+    printf("1, , , , , , ,%d,\n",  (uint64_t)(totalTime));
 }
 
 float accuracy(float *arr1, float *arr2, int len)
@@ -252,17 +262,13 @@ int main(int argc, char** argv)
 
     memcpy(tempCopy,tempIn, size * sizeof(float));
 
-    struct timeval start, stop;
-    float time;
-    gettimeofday(&start,NULL);
-    computeTempOMP(powerIn, tempIn, tempOut, numCols, numRows, layers, Cap, Rx, Ry, Rz, dt,iterations);
-    gettimeofday(&stop,NULL);
-    time = (stop.tv_usec-start.tv_usec)*1.0e-6 + stop.tv_sec - start.tv_sec;
+    //computeTempOMP(powerIn, tempIn, tempOut, numCols, numRows, layers, Cap, Rx, Ry, Rz, dt,iterations);
+    
     computeTempCPU(powerIn, tempCopy, answer, numCols, numRows, layers, Cap, Rx, Ry, Rz, dt,iterations);
 
     float acc = accuracy(tempOut,answer,numRows*numCols*layers);
-    printf("Time: %.3f (s)\n",time);
-    printf("Accuracy: %e\n",acc);
+    //printf("Time: %.3f (s)\n",time);
+    //printf("Accuracy: %e\n",acc);
     writeoutput(tempOut,numRows, numCols, layers, ofile);
     free(tempIn);
     free(tempOut); free(powerIn);

@@ -2,15 +2,9 @@
 #include <stdlib.h>
 #include <omp.h>
 #include <sys/time.h>
+#include "../../common/common.h"
 
 // Returns the current system time in microseconds 
-long long get_time()
-{
-    struct timeval tv;
-    gettimeofday(&tv, NULL);
-    return (tv.tv_sec * 1000000) + tv.tv_usec;
-
-}
 
 using namespace std;
 
@@ -29,7 +23,7 @@ using namespace std;
 /* capacitance fitting factor	*/
 #define FACTOR_CHIP	0.5
 #define OPEN
-//#define NUM_THREAD 4
+#define NUM_THREAD 1
 
 typedef float FLOAT;
 
@@ -161,7 +155,7 @@ void compute_tran_temp(FLOAT *result, int num_iterations, FLOAT *temp, FLOAT *po
 	#ifdef VERBOSE
 	int i = 0;
 	#endif
-
+    uint64_t time1=0, time2=0, totalTime=0;
 	FLOAT grid_height = chip_height / row;
 	FLOAT grid_width = chip_width / col;
 
@@ -197,11 +191,16 @@ void compute_tran_temp(FLOAT *result, int num_iterations, FLOAT *temp, FLOAT *po
                 #ifdef VERBOSE
                 fprintf(stdout, "iteration %d\n", i++);
                 #endif
+                time1 = getTime();
                 single_iteration(r, t, power, row, col, Cap_1, Rx_1, Ry_1, Rz_1, step);
+                time2 = getTime();
+                printf("0, %d, %d, %d, %d, %d \n",num_iterations, i, col, row, (uint64_t)(time2 - time1));
+                totalTime += (uint64_t)(time2 - time1);
                 FLOAT* tmp = t;
                 t = r;
                 r = tmp;
             }	
+        printf("0, , , , , %d\n", (uint64_t)(totalTime));
         }
 	#ifdef VERBOSE
 	fprintf(stdout, "iteration %d\n", i++);
@@ -303,16 +302,14 @@ int main(int argc, char **argv)
 	read_input(temp, grid_rows, grid_cols, tfile);
 	read_input(power, grid_rows, grid_cols, pfile);
 
-	printf("Start computing the transient temperature\n");
+	//printf("Start computing the transient temperature\n");
 	
-    long long start_time = get_time();
 
     compute_tran_temp(result,sim_time, temp, power, grid_rows, grid_cols);
 
-    long long end_time = get_time();
 
-    printf("Ending simulation\n");
-    printf("Total time: %.3f seconds\n", ((float) (end_time - start_time)) / (1000*1000));
+//    printf("Ending simulation\n");
+//   printf("Total time: %.3f seconds\n", ((float) (end_time - start_time)) / (1000*1000));
 
     writeoutput((1&sim_time) ? result : temp, grid_rows, grid_cols, ofile);
 
