@@ -5,8 +5,7 @@
 #include <math.h>
 #include "needle.h"
 #include <cuda.h>
-#include <sys/time.h>
-
+#include "../../common/common.h"
 // includes, kernels
 #include "needle_kernel.cu"
 
@@ -77,7 +76,7 @@ void runTest( int argc, char** argv)
 	int *matrix_cuda,  *referrence_cuda;
 	int size;
 	
-    
+    uint64_t time1=0, time2=0, totaltime1=0, totalTime2=0;
     // the lengths of the two sequences should be able to divided by 16.
 	// And at current stage  max_rows needs to equal max_cols
 	if (argc == 3)
@@ -141,6 +140,8 @@ void runTest( int argc, char** argv)
 	cudaMalloc((void**)& referrence_cuda, sizeof(int)*size);
 	cudaMalloc((void**)& matrix_cuda, sizeof(int)*size);
 	
+        totalTime1 = getTime();
+
 	cudaMemcpy(referrence_cuda, referrence, sizeof(int) * size, cudaMemcpyHostToDevice);
 	cudaMemcpy(matrix_cuda, input_itemsets, sizeof(int) * size, cudaMemcpyHostToDevice);
 
@@ -153,18 +154,28 @@ void runTest( int argc, char** argv)
 	for( int i = 1 ; i <= block_width ; i++){
 		dimGrid.x = i;
 		dimGrid.y = 1;
+                time1 = getTime()
 		needle_cuda_shared_1<<<dimGrid, dimBlock>>>(referrence_cuda, matrix_cuda
 		                                      ,max_cols, penalty, i, block_width); 
-	}
+                time2 = getTime();	
+                printf("1, %d, %d, %d, %d, %d", block_width, i, max_cols, penalty, (uint64_t)(time2 - time1));
+        }
 	printf("Processing bottom-right matrix\n");
     //process bottom-right matrix
 	for( int i = block_width - 1  ; i >= 1 ; i--){
 		dimGrid.x = i;
 		dimGrid.y = 1;
+                
+                time1 = getTime()
+
 		needle_cuda_shared_2<<<dimGrid, dimBlock>>>(referrence_cuda, matrix_cuda
 		                                      ,max_cols, penalty, i, block_width); 
-	}
 
+                time2 = getTime();	
+                printf("1, %d, %d, %d, %d, %d", block_width, i, max_cols, penalty, (uint64_t)(time2 - time1));
+	}
+        totalTime2 = getTime();
+        printf("1, , , , , , , ,%d ", (uint64_t)(totaltime2 - totaltime1));
 
     cudaMemcpy(output_itemsets, matrix_cuda, sizeof(int) * size, cudaMemcpyDeviceToHost);
 	

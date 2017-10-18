@@ -55,7 +55,7 @@ void hotspot_opt1(float *p, float *tIn, float *tOut,
         float dt, int numiter) 
 {
 
-    uint64_t time1=0, time2=0, totalTime=0;
+    uint64_t time1=0, time2=0, totalTime=0, totalTime2;
     
     float ce, cw, cn, cs, ct, cb, cc;
     float stepDivCap = dt / Cap;
@@ -78,19 +78,20 @@ void hotspot_opt1(float *p, float *tIn, float *tOut,
     dim3 block_dim(64, 4, 1);
     dim3 grid_dim(nx / 64, ny / 4, 1);
 
+    totalTime1 = getTime();
     for (int i = 0; i < numiter; ++i) {
         time1 = getTime();
         hotspotOpt1<<<grid_dim, block_dim>>>
             (p_d, tIn_d, tOut_d, stepDivCap, nx, ny, nz, ce, cw, cn, cs, ct, cb, cc);
         time2 = getTime();
-        printf("1, %d, %d, %d, %d, %d, %d, \n", numiter, i, nx, ny, nz, (uint64_t)(time2 - time1));
-        totalTime +=  (uint64_t)(time2 - time1);
+        printf("1, hotspot3D, %d, %d, %d, %d, %d, %d, \n", numiter, i, nx, ny, nz, (uint64_t)(time2 - time1));
         
         float *t = tIn_d;
         tIn_d = tOut_d;
         tOut_d = t;
     }
-    printf("1, , , , , , %d\n",  (uint64_t)(totalTime));
+    totalTime2 = getTime();
+    printf("1, , , , , , , %d\n",  (uint64_t)(totalTime2 - totalTime1));
 
     cudaDeviceSynchronize();
     cudaMemcpy(tOut, tOut_d, s, cudaMemcpyDeviceToHost);

@@ -355,19 +355,18 @@ void ForwardSub()
 	dim3 dimGridXY(gridSize2d,gridSize2d);
 
 	for (t=0; t<(Size-1); t++) {
-        printf("1, %d, %d,", Size, Size-t);
 
 		time1 = getTime();
         Fan1<<<dimGrid,dimBlock>>>(m_cuda,a_cuda,Size,t);
 		cudaThreadSynchronize();
 		time2 = getTime();
-        printf("%d,", (uint64_t)(time2 - time1));
+        printf("1, Fan1, %d, %d,%d,\n", Size, Size-t, (uint64_t)(time2 - time1));
         
         time3 = getTime();
         Fan2<<<dimGridXY,dimBlockXY>>>(m_cuda,a_cuda,b_cuda,Size,Size-t,t);
 		cudaThreadSynchronize();
 		time4 = getTime();
-        printf("%d,\n", (uint64_t)(time4 - time3));
+        printf("1, Fan2, %d, %d,%d,\n", Size, Size-t, (uint64_t)(time4 - time3));
         
         checkCUDAError("Fan2");
 	}
@@ -380,7 +379,7 @@ void ForwardSub()
 	cudaMemcpy(a, a_cuda, Size * Size * sizeof(float),cudaMemcpyDeviceToHost );
 	cudaMemcpy(b, b_cuda, Size * sizeof(float),cudaMemcpyDeviceToHost );
     totalTime2 = getTime();
-    printf("1, %d, , , , %d\n,", Size, (uintmax_t)(totalTime2 - totalTime1));
+    printf("T, , %d, , ,  %d\n,", Size, (uintmax_t)(totalTime2 - totalTime1));
     
     cudaFree(m_cuda);
 	cudaFree(a_cuda);

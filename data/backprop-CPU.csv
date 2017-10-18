@@ -1,0 +1,228 @@
+1, layerforward, 8192, 1992892,
+0, bpnnCPU, 8192, 8841,
+1, adjust_weights 8192, 3392971
+T, ,8192, ,5400630
+1, layerforward, 9216, 2282789,
+0, bpnnCPU, 9216, 8995,
+1, adjust_weights 9216, 3412859
+T, ,9216, ,5709751
+1, layerforward, 10240, 2297289,
+0, bpnnCPU, 10240, 9507,
+1, adjust_weights 10240, 3437161
+T, ,10240, ,5749644
+1, layerforward, 11264, 2320308,
+0, bpnnCPU, 11264, 8802,
+1, adjust_weights 11264, 3450306
+T, ,11264, ,5785900
+1, layerforward, 12288, 2315052,
+0, bpnnCPU, 12288, 6338,
+1, adjust_weights 12288, 3490663
+T, ,12288, ,5818221
+1, layerforward, 13312, 2304470,
+0, bpnnCPU, 13312, 8746,
+1, adjust_weights 13312, 3512553
+T, ,13312, ,5831472
+1, layerforward, 14336, 2328814,
+0, bpnnCPU, 14336, 11085,
+1, adjust_weights 14336, 3525050
+T, ,14336, ,5870788
+1, layerforward, 15360, 1629781,
+0, bpnnCPU, 15360, 8796,
+1, adjust_weights 15360, 3581614
+T, ,15360, ,5225482
+1, layerforward, 16384, 906631,
+0, bpnnCPU, 16384, 10838,
+1, adjust_weights 16384, 3851685
+T, ,16384, ,4776202
+1, layerforward, 17408, 1030497,
+0, bpnnCPU, 17408, 9110,
+1, adjust_weights 17408, 3658653
+T, ,17408, ,4703702
+1, layerforward, 18432, 1042744,
+0, bpnnCPU, 18432, 8543,
+1, adjust_weights 18432, 3659694
+T, ,18432, ,4716523
+1, layerforward, 19456, 1043573,
+0, bpnnCPU, 19456, 8678,
+1, adjust_weights 19456, 3714922
+T, ,19456, ,4772770
+1, layerforward, 20480, 1021985,
+0, bpnnCPU, 20480, 7068,
+1, adjust_weights 20480, 3734498
+T, ,20480, ,4769245
+1, layerforward, 21504, 782638,
+0, bpnnCPU, 21504, 9540,
+1, adjust_weights 21504, 3796766
+T, ,21504, ,4595707
+1, layerforward, 22528, 1021652,
+0, bpnnCPU, 22528, 8877,
+1, adjust_weights 22528, 3817137
+T, ,22528, ,4853355
+1, layerforward, 23552, 1056209,
+0, bpnnCPU, 23552, 9198,
+1, adjust_weights 23552, 3846809
+T, ,23552, ,4917802
+1, layerforward, 24576, 1082737,
+0, bpnnCPU, 24576, 6815,
+1, adjust_weights 24576, 3867046
+T, ,24576, ,4963696
+1, layerforward, 25600, 1073851,
+0, bpnnCPU, 25600, 9143,
+1, adjust_weights 25600, 3925957
+T, ,25600, ,5015053
+1, layerforward, 26624, 1088226,
+0, bpnnCPU, 26624, 9126,
+1, adjust_weights 26624, 3958522
+T, ,26624, ,5062070
+1, layerforward, 27648, 1064649,
+0, bpnnCPU, 27648, 9172,
+1, adjust_weights 27648, 3989226
+T, ,27648, ,5068566
+1, layerforward, 28672, 1803453,
+0, bpnnCPU, 28672, 9226,
+1, adjust_weights 28672, 4001606
+T, ,28672, ,5819929
+1, layerforward, 29696, 1107326,
+0, bpnnCPU, 29696, 9755,
+1, adjust_weights 29696, 4050621
+T, ,29696, ,5174147
+1, layerforward, 30720, 1101139,
+0, bpnnCPU, 30720, 8804,
+1, adjust_weights 30720, 4077083
+T, ,30720, ,5192524
+1, layerforward, 31744, 1118507,
+0, bpnnCPU, 31744, 7419,
+1, adjust_weights 31744, 4124199
+T, ,31744, ,5255893
+1, layerforward, 32768, 1120290,
+0, bpnnCPU, 32768, 9304,
+1, adjust_weights 32768, 4186303
+T, ,32768, ,5321758
+1, layerforward, 33792, 1117770,
+0, bpnnCPU, 33792, 6541,
+1, adjust_weights 33792, 3961835
+T, ,33792, ,5091888
+1, layerforward, 34816, 1125272,
+0, bpnnCPU, 34816, 9588,
+1, adjust_weights 34816, 4237937
+T, ,34816, ,5378614
+1, layerforward, 35840, 1117487,
+0, bpnnCPU, 35840, 9559,
+1, adjust_weights 35840, 4280387
+T, ,35840, ,5413785
+1, layerforward, 36864, 1155831,
+0, bpnnCPU, 36864, 9884,
+1, adjust_weights 36864, 4304092
+T, ,36864, ,5475829
+1, layerforward, 37888, 1139608,
+0, bpnnCPU, 37888, 9347,
+1, adjust_weights 37888, 4270698
+T, ,37888, ,5425794
+1, layerforward, 38912, 902245,
+0, bpnnCPU, 38912, 9452,
+1, adjust_weights 38912, 4366667
+T, ,38912, ,5284682
+1, layerforward, 39936, 1142824,
+0, bpnnCPU, 39936, 9174,
+1, adjust_weights 39936, 4443920
+T, ,39936, ,5603058
+1, layerforward, 40960, 1179989,
+0, bpnnCPU, 40960, 9884,
+1, adjust_weights 40960, 4363312
+T, ,40960, ,5562387
+1, layerforward, 41984, 1155515,
+0, bpnnCPU, 41984, 11201,
+1, adjust_weights 41984, 4441709
+T, ,41984, ,5614694
+1, layerforward, 43008, 1174268,
+0, bpnnCPU, 43008, 9190,
+1, adjust_weights 43008, 4441539
+T, ,43008, ,5631284
+1, layerforward, 44032, 1179339,
+0, bpnnCPU, 44032, 9124,
+1, adjust_weights 44032, 4444747
+T, ,44032, ,5639400
+1, layerforward, 45056, 1157348,
+0, bpnnCPU, 45056, 9061,
+1, adjust_weights 45056, 4506378
+T, ,45056, ,5679320
+1, layerforward, 46080, 1196285,
+0, bpnnCPU, 46080, 9173,
+1, adjust_weights 46080, 4502288
+T, ,46080, ,5713975
+1, layerforward, 47104, 1193353,
+0, bpnnCPU, 47104, 9522,
+1, adjust_weights 47104, 4566204
+T, ,47104, ,5775389
+1, layerforward, 48128, 1175787,
+0, bpnnCPU, 48128, 9327,
+1, adjust_weights 48128, 4586139
+T, ,48128, ,5778167
+1, layerforward, 49152, 1684452,
+0, bpnnCPU, 49152, 9736,
+1, adjust_weights 49152, 4616678
+T, ,49152, ,6316879
+1, layerforward, 50176, 1207635,
+0, bpnnCPU, 50176, 11732,
+1, adjust_weights 50176, 4620904
+T, ,50176, ,5846358
+1, layerforward, 51200, 1247377,
+0, bpnnCPU, 51200, 9938,
+1, adjust_weights 51200, 4677062
+T, ,51200, ,5941019
+1, layerforward, 52224, 1257350,
+0, bpnnCPU, 52224, 9266,
+1, adjust_weights 52224, 4740513
+T, ,52224, ,6013636
+1, layerforward, 53248, 1241753,
+0, bpnnCPU, 53248, 11200,
+1, adjust_weights 53248, 5315766
+T, ,53248, ,6575291
+1, layerforward, 54272, 1267108,
+0, bpnnCPU, 54272, 9241,
+1, adjust_weights 54272, 5304008
+T, ,54272, ,6587782
+1, layerforward, 55296, 1763829,
+0, bpnnCPU, 55296, 9441,
+1, adjust_weights 55296, 5316726
+T, ,55296, ,7096720
+1, layerforward, 56320, 1759747,
+0, bpnnCPU, 56320, 10294,
+1, adjust_weights 56320, 5978138
+T, ,56320, ,7755105
+1, layerforward, 57344, 1819701,
+0, bpnnCPU, 57344, 9551,
+1, adjust_weights 57344, 6122098
+T, ,57344, ,7961713
+1, layerforward, 58368, 2293031,
+0, bpnnCPU, 58368, 9586,
+1, adjust_weights 58368, 6075246
+T, ,58368, ,8384142
+1, layerforward, 59392, 2350638,
+0, bpnnCPU, 59392, 9723,
+1, adjust_weights 59392, 6086398
+T, ,59392, ,8453241
+1, layerforward, 60416, 2024402,
+0, bpnnCPU, 60416, 9464,
+1, adjust_weights 60416, 6123601
+T, ,60416, ,8164487
+1, layerforward, 61440, 2455912,
+0, bpnnCPU, 61440, 9815,
+1, adjust_weights 61440, 6192165
+T, ,61440, ,8664811
+1, layerforward, 62464, 2464379,
+0, bpnnCPU, 62464, 9943,
+1, adjust_weights 62464, 6192330
+T, ,62464, ,8673469
+1, layerforward, 63488, 2408903,
+0, bpnnCPU, 63488, 9389,
+1, adjust_weights 63488, 6215203
+T, ,63488, ,8640308
+1, layerforward, 64512, 2506696,
+0, bpnnCPU, 64512, 11948,
+1, adjust_weights 64512, 6180673
+T, ,64512, ,8706870
+1, layerforward, 65536, 2390656,
+0, bpnnCPU, 65536, 9446,
+1, adjust_weights 65536, 6478410
+T, ,65536, ,8885304

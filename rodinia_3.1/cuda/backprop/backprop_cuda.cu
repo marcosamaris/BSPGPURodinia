@@ -104,17 +104,16 @@ void bpnn_train_cuda(BPNN *net, float *eo, float *eh)
 #endif
 totalTime1 = getTime();
 #ifdef CPU
-  printf("0, %d,", net->input_n); 
   time1 = getTime();
   //printf("Performing CPU computation\n");
   bpnn_layerforward(net->input_units, net->hidden_units,net->input_weights, in, hid);
   time2 = getTime();
-  printf("%d", (uint64_t)(time2-time1));
+  printf("0, layerforward, %d, %d,\n", net->input_n, (uint64_t)(time2-time1));
 #endif
 
 #ifdef GPU
 
-  printf("1, %d,", net->input_n); 
+ // printf("1, %d,", net->input_n); 
 
  // printf("Performing GPU computation\n");
   
@@ -152,7 +151,8 @@ totalTime1 = getTime();
 	net-> hidden_units[j] = float(1.0 / (1.0 + exp(-sum)));
   }
   time2 = getTime();
-  printf("%d,", (uint64_t)time2-time1);
+  printf("1, layerforward, %d, %d,\n", net->input_n, (uint64_t)(time2-time1));
+  
   #endif
 
  time3 = getTime();
@@ -163,13 +163,13 @@ totalTime1 = getTime();
   bpnn_adjust_weights(net->output_delta, out, net->hidden_units, hid, net->hidden_weights, net->hidden_prev_weights);
 
   time4 = getTime();
-  printf("%d,", (uint64_t)(time4 - time3));
+  printf("0, bpnnCPU, %d, %d,\n", net->input_n, (uint64_t)(time4-time3));
 
 #ifdef CPU
   time5 = getTime();
   bpnn_adjust_weights(net->hidden_delta, hid, net->input_units, in, net->input_weights, net->input_prev_weights);
   time6 = getTime();
-  printf("%d,", (uint64_t)(time6 - time5));
+  printf("0, adjust_weights %d, %d,\n", net->input_n, (uint64_t)(time4-time3));
 #endif  
 
 
@@ -205,11 +205,11 @@ totalTime1 = getTime();
   free(input_weights_one_dim);
   free(input_weights_prev_one_dim);
   time6 = getTime();
-  printf("%d,", (uint64_t)(time6 - time5));
+  printf("1, adjust_weights %d, %d\n", net->input_n, (uint64_t)(time6-time5));
 #endif   
   
   totalTime2 = getTime();
-    printf("%d, \n", (uint64_t)(totalTime2 - totalTime1));
+  printf("T, ,%d, ,%d\n", net->input_n, (uint64_t)(totalTime2-totalTime1));
   
   
 

@@ -155,7 +155,7 @@ void compute_tran_temp(FLOAT *result, int num_iterations, FLOAT *temp, FLOAT *po
 	#ifdef VERBOSE
 	int i = 0;
 	#endif
-    uint64_t time1=0, time2=0, totalTime=0;
+    uint64_t time1=0, time2=0, totalTime1=0, totalTime2=0;
 	FLOAT grid_height = chip_height / row;
 	FLOAT grid_width = chip_width / col;
 
@@ -176,6 +176,7 @@ void compute_tran_temp(FLOAT *result, int num_iterations, FLOAT *temp, FLOAT *po
 	fprintf(stdout, "Rx: %g\tRy: %g\tRz: %g\tCap: %g\n", Rx, Ry, Rz, Cap);
 	#endif
 
+     totalTime1 = getTime();
 #ifdef OMP_OFFLOAD
         int array_size = row*col;
 #pragma omp target \
@@ -194,14 +195,14 @@ void compute_tran_temp(FLOAT *result, int num_iterations, FLOAT *temp, FLOAT *po
                 time1 = getTime();
                 single_iteration(r, t, power, row, col, Cap_1, Rx_1, Ry_1, Rz_1, step);
                 time2 = getTime();
-                printf("0, %d, %d, %d, %d, %d \n",num_iterations, i, col, row, (uint64_t)(time2 - time1));
-                totalTime += (uint64_t)(time2 - time1);
+                printf("0, calculate_temp, %d, %d, %d, %d, %d \n",num_iterations, i, col, row, (uint64_t)(time2 - time1));
                 FLOAT* tmp = t;
                 t = r;
                 r = tmp;
             }	
-        printf("0, , , , , %d\n", (uint64_t)(totalTime));
         }
+    totalTime2 = getTime();
+    printf("T, ,%d, , , , , %d\n", num_iterations, (uint64_t)(totalTime2- totalTime1));
 	#ifdef VERBOSE
 	fprintf(stdout, "iteration %d\n", i++);
 	#endif

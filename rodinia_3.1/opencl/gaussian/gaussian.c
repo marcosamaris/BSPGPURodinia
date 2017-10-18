@@ -130,29 +130,29 @@ void ForwardSub()
  uint64_t  time2 =0;
  uint64_t  time3 =0;
  uint64_t  time4=0;
- uint64_t  totalTime=0;
+ uint64_t  totalTime1=0;
+ uint64_t  totalTime2=0;
  
+  totalTime1 = getTime();
   for (t=0; t<(Size-1); t++) {
-     printf("1, %d, %d,", Size, Size-t);
 
      time1 += getTime();
      Fan1( Size-1-t-1);  
      time2 += getTime();
-     printf("%d,", (uint64_t)(time2 - time1));
+     printf("0, Fan1, %d, %d,%d\n", Size, Size-t, (uint64_t)(time2 - time1));
         /* t=0 to (Size-2), the range is
                                ** Size-2-t+1 = Size-1-t
                                */   
-     totalTime += (uint64_t)(time2 - time1);
      
      time3 = getTime();
      Fan2( Size-1-t-1, Size-t-1);
      Fan3( Size-1-t-1);
      time4 = getTime();
      
-     printf("%d, \n", (uint64_t)(time4 - time3));
-     totalTime += (uint64_t)(time4 - time3);
+     printf("0, Fan2, %d, %d,%d\n", Size, Size-t, (uint64_t)(time4 - time3));
   }
-  printf("1, %d, , , , %d\n", Size, (uint64_t)totalTime);
+  totalTime2 = getTime();
+  printf("T, , %d, , , %d\n", Size, (uint64_t)totalTime2 - totalTime1);
 }
 /*-------------------------------------------------------
 ** Fan1() -- Calculate multiplier matrix

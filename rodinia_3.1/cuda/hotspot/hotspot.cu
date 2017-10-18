@@ -222,7 +222,7 @@ __global__ void calculate_temp(int iteration,  //number of iteration
 int compute_tran_temp(float *MatrixPower,float *MatrixTemp[2], int col, int row, \
 		int total_iterations, int num_iterations, int blockCols, int blockRows, int borderCols, int borderRows) 
 {
-    uint64_t time1=0, time2=0, totalTime=0;
+    uint64_t time1=0, time2=0, totalTime1=0, totalTime2=0;
         dim3 dimBlock(BLOCK_SIZE, BLOCK_SIZE);
         dim3 dimGrid(blockCols, blockRows);  
 	
@@ -241,7 +241,8 @@ int compute_tran_temp(float *MatrixPower,float *MatrixTemp[2], int col, int row,
 	time_elapsed=0.001;
 
         int src = 1, dst = 0;
-	
+
+        totalTime1 = getTime();
 	for (t = 0; t < total_iterations; t++) {
             int temp = src;
             src = dst;
@@ -251,10 +252,10 @@ int compute_tran_temp(float *MatrixPower,float *MatrixTemp[2], int col, int row,
             calculate_temp<<<dimGrid, dimBlock>>>(MIN(num_iterations, total_iterations-t), MatrixPower,MatrixTemp[src],MatrixTemp[dst],\
 		col,row,borderCols, borderRows, Cap,Rx,Ry,Rz,step,time_elapsed);
 	        time2 = getTime();
-            printf("1, %d, %d, %d, %d, %d, \n", total_iterations, t, num_iterations, col, row, (uint64_t)(time2 - time1));
-            totalTime +=  (uint64_t)(time2 - time1);
-    }
-    printf("1, , , , , , %d\n",  (uint64_t)(totalTime)); 
+            printf("1, calculate_temp, %d, %d, %d, %d, %d, \n", total_iterations, t, num_iterations, col, row, (uint64_t)(time2 - time1));
+        }
+        totalTime2 = getTime();
+    printf("T, ,%d, , , , , , %d\n",total_iterations, (uint64_t)(totalTime2 -totalTime1)); 
         return dst;
 }
 

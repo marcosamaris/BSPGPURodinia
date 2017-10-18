@@ -92,8 +92,9 @@ void computeTempCPU(float *pIn, float* tIn, float *tOut,
     int x,y,z;
     int i = 0;
     
-    uint64_t time1=0, time2=0, totalTime=0;
+    uint64_t time1=0, time2=0, totalTime1=0, totalTime2=0;
     
+    totalTime1 = getTime();
     do{
 
         time1 = getTime();
@@ -114,8 +115,7 @@ void computeTempCPU(float *pIn, float* tIn, float *tOut,
                     tOut[c] = tIn[c]*cc + tIn[n]*cn + tIn[s]*cs + tIn[e]*ce + tIn[w]*cw + tIn[t]*ct + tIn[b]*cb + (dt/Cap) * pIn[c] + ct*amb_temp;
                 }
         time2 = getTime();        
-        printf("1, %d, %d, %d, %d, %d,%d, \n", numiter, i, nx, ny, nz, (uint64_t)(time2 - time1));
-        totalTime +=  (uint64_t)(time2 - time1);
+        printf("1, hotspot3D, %d, %d, %d, %d, %d,%d, \n", numiter, i, nx, ny, nz, (uint64_t)(time2 - time1));
         
         
         float *temp = tIn;
@@ -124,8 +124,8 @@ void computeTempCPU(float *pIn, float* tIn, float *tOut,
         i++;
     }
     while(i < numiter);
-
-    printf("1, , , , , , ,%d,\n",  (uint64_t)(totalTime));
+    totalTime2 = getTime();
+    printf("1, , , , , , ,%d\n",  (uint64_t)(totalTime2 - totalTime1));
 }
 
 float accuracy(float *arr1, float *arr2, int len)

@@ -114,7 +114,8 @@ int main(int argc, char *argv []){
  	
     uint64_t time1=0, 
          time2=0, 
-         totalTime=0;
+         totalTime1=0,
+         totalTime2=0;
 	
 	if(argc!=4){
 		printf("ERROR: usage: heartwall <inputfile> <num of frames> <num of threads>\n");
@@ -527,7 +528,7 @@ int main(int argc, char *argv []){
 	//======================================================================================================================================================
 	//	KERNEL
 	//======================================================================================================================================================
-
+        totalTime1 = getTime();
 	for(public.frame_no=0; public.frame_no<frames_processed; public.frame_no++){
 
 	//====================================================================================================
@@ -555,9 +556,8 @@ int main(int argc, char *argv []){
 						private[i]);
 		}
                     time2 = getTime();
-                    printf("1, %d, %d, %d,\n",frames_processed, public.frame_no, (uint64_t)(time2 - time1));
+                    printf("1, kernel, %d, %d, %d,\n",frames_processed, public.frame_no, (uint64_t)(time2 - time1));
                     //printf("%d,", (uint64_t)(time2 - time1)); 
-                    totalTime +=  (uint64_t)(time2 - time1);
 
 
 	//====================================================================================================
@@ -575,7 +575,8 @@ int main(int argc, char *argv []){
 		fflush(NULL);
 
 	}
-    printf("1, %d, , %d\n", frames_processed, (uint64_t)(totalTime));
+        totalTime2 = getTime();
+    printf("1, , %d, , %d\n", frames_processed, (uint64_t)(totalTime2 -totalTime1));
 
 	//======================================================================================================================================================
 	//	PRINT FRAME PROGRESS END

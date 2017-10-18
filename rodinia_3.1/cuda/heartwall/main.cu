@@ -126,7 +126,8 @@ int main(int argc, char *argv []){
 
     uint64_t time1=0, 
          time2=0, 
-         totalTime=0;
+         totalTime1=0,
+         totalTime2=0;
 	// CUDA kernel execution parameters
 	dim3 threads;
 	dim3 blocks;
@@ -647,7 +648,7 @@ int main(int argc, char *argv []){
 	//====================================================================================================
 	//	LAUNCH
 	//====================================================================================================
-
+        totalTime1 = getTime();
 	for(common_change.frame_no=0; common_change.frame_no<frames_processed; common_change.frame_no++){
 
 		// Extract a cropped version of the first frame from the video file
@@ -664,8 +665,7 @@ int main(int argc, char *argv []){
 		// launch GPU kernel
 		kernel<<<blocks, threads>>>();
         time2 = getTime();
-        printf("1, %d, %d, %d,\n",frames_processed, common_change.frame_no, (uint64_t)(time2 - time1));
-        totalTime +=  (uint64_t)(time2 - time1);
+        printf("1, kernel, %d, %d, %d,\n",frames_processed, common_change.frame_no, (uint64_t)(time2 - time1));
 
 		// free frame after each loop iteration, since AVI library allocates memory for every frame fetched
 		free(frame);
@@ -675,7 +675,9 @@ int main(int argc, char *argv []){
 
 	}
 
-    printf("1, %d, , , %d\n", frames_processed, totalTime);
+        totalTime2 = getTime();
+
+    printf("T,, %d, , , %d\n", frames_processed, (uint64_t)(totalTime2 - totalTime1));
 	//====================================================================================================
 	//	PRINT FRAME PROGRESS END
 	//====================================================================================================
