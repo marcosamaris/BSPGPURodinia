@@ -1,22 +1,24 @@
 #!/bin/bash
 
-DEVICE=CPU
-declare -a apps=(  hotspot3D )
+DEVICE=GPU
+#declare -a apps=( backprop gaussian heartwall hotspot hotspot3D needle lud )
+    declare -a apps=( backprop )
 mkdir  -p ./data/
 
 MAIN_DIR=~/rodiniaSched/rodinia_3.1
 
+for iteration in `seq 1 1 10`; do
 for app in "${apps[@]}"; do 
     rm -rf ${MAIN_DIR}/data/${app}-${DEVICE} 
      
     ### Back-propagation benchmark executions    
     if [[ "${app}" == "backprop" ]]; then
-        cd ${app}
-        make clean; make
+            cd ${MAIN_DIR}/cuda/${app}
+        make clean; make DEVICE=$DEVICE
         for i in `seq 8192 1024 65536`; do
-	    ./${app} ${i} >> ${app}-${DEVICE}
+ 	    ./${app} ${i} >> ${app}-${DEVICE}
         done
-        mv ${app}-${DEVICE} ../../../data/${app}-${DEVICE}.csv
+        mv ${app}-${DEVICE} ../../../data/${app}-${DEVICE}-${iteration}.csv
         rm -f ${app}-${DEVICE}; cd .. 
     fi
 
@@ -27,9 +29,13 @@ for app in "${apps[@]}"; do
         else
             cd ${MAIN_DIR}/cuda/${app}
         fi
-        make clean; make
+        make clean; make; rm -rf ${app}-${DEVICE} 
         for i in `seq 256 256 8192`; do
-	    ./${app} ${i}  >> ${app}-${DEVICE}
+            if [[ "${DEVICE}" == "CPU" ]]; then
+	        ./${app} ${i}  >> ${app}-${DEVICE}
+            else
+	        ./${app} -s ${i} -q  >> ${app}-${DEVICE}
+        fi
         done
         mv ${app}-${DEVICE} ../../../data/${app}-${DEVICE}.csv
         rm -f ${app}-${DEVICE}; cd ..
@@ -60,7 +66,7 @@ for app in "${apps[@]}"; do
         fi
         make clean; make
         for i in  64 128 256 512 1024; do
-             for j in `seq 256 256 1024 `; do
+             for j in `seq 6 256 1024 `; do
         if [[ "${DEVICE}" == "CPU" ]]; then
                  ./${app} ${i} ${i} ${j} 1 ../../data/hotspot/temp_${i} ../../data/hotspot/power_${i} output.out >> ${app}-${DEVICE} 
         else
@@ -88,7 +94,33 @@ for app in "${apps[@]}"; do
         mv ${app}-${DEVICE} ../../../data/${app}-${DEVICE}.csv
         rm -f ${app}-${DEVICE}; cd ..
     fi
-done   
+
+    if [[ "${app}" == "lud" ]]; then
+        for i in `seq 256 256 8192`; do
+            ${app} -s ${i} -v > tempTime
+        done
+    fi
+
+    if [[ "${app}" == "needle" ]]; then
+        if [[ "${DEVICE}" == "CPU" ]]; then
+            cd ${MAIN_DIR}/openmp/${app}
+            nThreads=1
+        else
+            cd ${MAIN_DIR}/cuda/${app}
+        fi
+        make clean; make
+       for i in `seq 256 256 4096`; do
+           for j in `seq 1 10 `; do
+                 ./${app} ${i} ${j} ${nThreads} >> ${app}-${DEVICE} 
+        done
+    done
+        mv ${app}-${DEVICE} ../../../data/${app}-${DEVICE}.csv
+        rm -f ${app}-${DEVICE}; cd ..
+    fi
+
+
+    done   
+done
 
 cd ../../
 
